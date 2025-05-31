@@ -26,7 +26,7 @@
 为了保护 Cron API 端点，已为你的项目生成了安全密钥：
 
 ```
-CRON_SECRET=4160f336b4a39e522355f82fb12e6c788ce30c4409120c123b0fa5634096077b
+CRON_SECRET=
 ```
 
 > **重要**: 这是一个 64 位十六进制安全密钥，请妥善保管并在所有环境中正确配置。
@@ -56,7 +56,7 @@ MINIMAX_GROUP_ID=your_minimax_group_id
 BLOB_READ_WRITE_TOKEN=your_vercel_blob_token
 
 # 安全配置（已生成）
-CRON_SECRET=4160f336b4a39e522355f82fb12e6c788ce30c4409120c123b0fa5634096077b
+CRON_SECRET=
 ```
 
 ### 2. 获取 API 密钥
@@ -113,7 +113,7 @@ curl http://localhost:3000/api/cron?test=true
 # 测试带 CRON_SECRET 的请求
 curl -X POST "http://localhost:3000/api/cron?test=true" \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer 4160f336b4a39e522355f82fb12e6c788ce30c4409120c123b0fa5634096077b"
+  -H "Authorization: Bearer "
 ```
 
 ## 🚀 部署到 Vercel
@@ -150,7 +150,7 @@ git push origin main
 - `BLOB_READ_WRITE_TOKEN`
 
 **安全配置（Production + Preview）:**
-- `CRON_SECRET=4160f336b4a39e522355f82fb12e6c788ce30c4409120c123b0fa5634096077b`
+- `CRON_SECRET=`
 
 ### 4. 部署后测试
 
@@ -164,7 +164,7 @@ curl $APP_URL/api/stats
 # 测试 Cron 任务（带密钥）
 curl -X POST "$APP_URL/api/cron?test=true" \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer 4160f336b4a39e522355f82fb12e6c788ce30c4409120c123b0fa5634096077b"
+  -H "Authorization: Bearer "
 ```
 
 ## 📊 数据库设置
