@@ -23,12 +23,44 @@ const NEWS_SOURCES = [
 ]
 
 // LLM 评估相关关键词
+// const RELEVANT_KEYWORDS = [
+//   'llm evaluation', 'language model evaluation', 'benchmark', 'assessment',
+//   'nlp evaluation', 'ai evaluation', 'model performance', 'conversational ai',
+//   'chatbot evaluation', 'text generation evaluation', 'language model benchmark',
+//   'ai model testing', 'llm assessment', 'evaluation metrics'
+// ]
 const RELEVANT_KEYWORDS = [
-  'llm evaluation', 'language model evaluation', 'benchmark', 'assessment',
-  'nlp evaluation', 'ai evaluation', 'model performance', 'conversational ai',
-  'chatbot evaluation', 'text generation evaluation', 'language model benchmark',
-  'ai model testing', 'llm assessment', 'evaluation metrics'
+  'llm evaluation',
+  'language model evaluation',
+  'benchmark',
+  'benchmarked',
+  'evaluation metrics',
+  'performance metrics',
+  'model assessment',
+  'tested',
+  'model accuracy',
+  'model performance',
+  'comparison of models',
+  'leaderboard',
+  'open llm leaderboard',
+  'model ranking',
+  'chatbot evaluation',
+  'conversational ai',
+  'generation quality',
+  'factual consistency',
+  'hallucination',
+  'prompt evaluation',
+  'output diversity',
+  'synthetic text',
+  'robustness test',
+  'alignment evaluation',
+  'zero-shot evaluation',
+  'multilingual performance',
+  'model fine-tuning evaluation',
+  'real-world performance',
+  'ai evaluation'
 ]
+
 
 export async function fetchNews(maxResults: number = 5): Promise<NewsEntry[]> {
   const allNews: NewsEntry[] = []
