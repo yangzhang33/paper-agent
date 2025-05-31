@@ -12,15 +12,36 @@ interface ArxivEntry {
 const ARXIV_API_URL = 'http://export.arxiv.org/api/query'
 
 // LLM 评估相关的搜索关键词
+// const SEARCH_TERMS = [
+//   'LLM evaluation',
+//   'large language model evaluation',
+//   'language model benchmarking',
+//   'LLM assessment',
+//   'natural language processing evaluation',
+//   'conversational AI evaluation',
+//   'chatbot evaluation',
+//   'text generation evaluation'
+// ]
+
 const SEARCH_TERMS = [
-  'LLM evaluation',
-  'large language model evaluation',
-  'language model benchmarking',
-  'LLM assessment',
-  'natural language processing evaluation',
-  'conversational AI evaluation',
-  'chatbot evaluation',
-  'text generation evaluation'
+  'language model evaluation',
+  'linguistic diversity LLM',
+  'synthetic text training LLM',
+  'iterative generation degradation',
+  'broken telephone language model',
+  'long-term LLM robustness',
+  'hallucination detection LLM',
+  'reasoning faithfulness evaluation',
+  'LLM information distortion',
+  'language model calibration',
+  'out-of-distribution LLM evaluation',
+  'semantic diversity language model',
+  'bias and ethics in LLMs',
+  'LLM temporal generalization',
+  'alignment drift in language models',
+  'continual finetuning evaluation',
+  'language model memory forgetting',
+  'multilingual consistency evaluation'
 ]
 
 export async function fetchArxivPapers(maxResults: number = 10): Promise<ArxivEntry[]> {
@@ -105,12 +126,25 @@ export async function fetchArxivPapers(maxResults: number = 10): Promise<ArxivEn
 
 // 过滤与 LLM 评估高度相关的论文
 export function filterRelevantPapers(papers: ArxivEntry[]): ArxivEntry[] {
+  // const relevantKeywords = [
+  //   'evaluation', 'benchmark', 'assessment', 'metric', 'performance',
+  //   'llm', 'language model', 'gpt', 'bert', 'transformer',
+  //   'nlp', 'natural language', 'conversational', 'dialogue',
+  //   'chatbot', 'question answering', 'text generation'
+  // ]
+
   const relevantKeywords = [
-    'evaluation', 'benchmark', 'assessment', 'metric', 'performance',
-    'llm', 'language model', 'gpt', 'bert', 'transformer',
-    'nlp', 'natural language', 'conversational', 'dialogue',
-    'chatbot', 'question answering', 'text generation'
+    'llm', 'language model', 'large language model', 'transformer',
+    'evaluation', 'assessment', 'benchmark', 'comparison',
+    'linguistic diversity', 'lexical diversity', 'syntactic diversity', 'semantic diversity',
+    'synthetic text', 'iterative generation', 'generation degradation',
+    'hallucination', 'faithfulness', 'factual consistency',
+    'alignment', 'bias', 'robustness', 'generalization', 'calibration',
+    'memory', 'forgetting', 'multilingual', 'consistency',
+    'style transfer', 'reasoning', 'long-term', 'recursive',
+    'broken telephone', 'semantic drift', 'prompt robustness'
   ]
+  
 
   return papers.filter(paper => {
     const text = `${paper.title} ${paper.summary}`.toLowerCase()
