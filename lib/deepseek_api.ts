@@ -9,7 +9,7 @@ export interface SummarizeOptions {
 }
 
 export async function summarizeContent(options: SummarizeOptions): Promise<string> {
-  const { content, title, maxLength = 5 } = options
+  const { content, title, maxLength = 15 } = options
   
   try {
     const response = await axios.post(
