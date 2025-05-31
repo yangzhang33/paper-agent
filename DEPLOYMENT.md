@@ -28,10 +28,13 @@ MINIMAX_GROUP_ID=your_minimax_group_id
 BLOB_READ_WRITE_TOKEN=your_vercel_blob_token
 ```
 
-### Cron 任务安全（可选）
+### Cron 任务安全配置 🔐
 ```
-CRON_SECRET=your_random_secret_string
+# 为你的项目生成的安全密钥
+CRON_SECRET=
 ```
+
+> **重要提示**: 这个 CRON_SECRET 是为你的项目专门生成的 64 位十六进制密钥，用于保护 Cron API 端点免受未授权访问。请在 Vercel 环境变量中设置此密钥。
 
 ## 数据库设置
 
@@ -59,12 +62,41 @@ CREATE INDEX IF NOT EXISTS idx_news_items_source ON news_items(source);
 
 1. 将代码推送到 GitHub 仓库
 2. 在 Vercel 中导入项目
-3. 配置环境变量
+3. 配置环境变量（特别注意设置 `CRON_SECRET`）
 4. 部署项目
+
+### Vercel 环境变量设置清单 ✅
+
+在 Vercel 项目设置 → Environment Variables 中添加：
+
+**必需的客户端变量:**
+- ✅ `NEXT_PUBLIC_SUPABASE_URL`
+- ✅ `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+
+**必需的服务端变量:**
+- ✅ `SUPABASE_URL`
+- ✅ `SUPABASE_ANON_KEY`  
+- ✅ `SUPABASE_SERVICE_ROLE_KEY`
+- ✅ `DEEPSEEK_API_KEY`
+- ✅ `MINIMAX_API_KEY`
+- ✅ `MINIMAX_GROUP_ID`
+- ✅ `BLOB_READ_WRITE_TOKEN`
+
+**安全配置:**
+- ✅ `CRON_SECRET=`
 
 ## Cron 任务配置
 
 项目包含 `.vercel/cron.json` 配置文件，会自动设置每日上午 8 点执行的 Cron 任务。
+
+### 🔒 Cron 任务安全机制
+
+我们的 Cron API 端点 (`/api/cron`) 使用 `CRON_SECRET` 进行保护：
+
+- **无 CRON_SECRET**: 任何人都可以触发 Cron 任务（不安全）
+- **有 CRON_SECRET**: 只有提供正确密钥的请求才能执行（安全）
+
+Vercel 的自动 Cron 任务会在请求头中包含这个密钥，确保只有合法的定时任务能够执行。
 
 ## 测试指南
 
@@ -104,16 +136,16 @@ curl https://your-app-name.vercel.app/api/stats
 
 #### 2.1 测试模式 Cron 任务（推荐）
 
-**手动触发测试模式:**
+**手动触发测试模式（使用 CRON_SECRET）:**
 ```bash
-# 方法 1: 使用 curl（推荐）
-curl -X POST "https://your-app-name.vercel.app/api/cron?test=true" \
-  -H "Content-Type: application/json"
-
-# 方法 2: 如果设置了 CRON_SECRET
+# 使用生成的 CRON_SECRET 进行安全测试
 curl -X POST "https://your-app-name.vercel.app/api/cron?test=true" \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer your_cron_secret"
+  -H "Authorization: Bearer "
+
+# 如果没有设置 CRON_SECRET（不推荐用于生产环境）
+curl -X POST "https://your-app-name.vercel.app/api/cron?test=true" \
+  -H "Content-Type: application/json"
 ```
 
 **测试模式特点:**
@@ -142,10 +174,31 @@ curl -X POST "https://your-app-name.vercel.app/api/cron?test=true" \
 **⚠️ 警告:** 生产模式会调用所有API，产生实际费用
 
 ```bash
-# 生产模式（会产生API费用）
+# 生产模式（需要 CRON_SECRET，会产生API费用）
 curl -X POST "https://your-app-name.vercel.app/api/cron" \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer your_cron_secret"
+  -H "Authorization: Bearer "
+```
+
+#### 2.3 安全测试
+
+**测试未授权访问（应该返回 401 错误）:**
+```bash
+# 不提供 Authorization header（应该被拒绝）
+curl -X POST "https://your-app-name.vercel.app/api/cron?test=true" \
+  -H "Content-Type: application/json"
+
+# 提供错误的密钥（应该被拒绝）
+curl -X POST "https://your-app-name.vercel.app/api/cron?test=true" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer wrong_secret"
+```
+
+**期望响应（应该是 401 未授权）:**
+```json
+{
+  "error": "Unauthorized"
+}
 ```
 
 ### 3. 数据库验证
@@ -217,6 +270,15 @@ Error: 插入记录失败: permission denied
 - 检查 Supabase RLS 策略
 - 确认使用了正确的 service role key
 
+**错误 4: Cron 任务未授权**
+```
+Error: Unauthorized
+```
+**解决方案:**
+- 检查 `CRON_SECRET` 环境变量是否正确设置
+- 确认请求头中的 Authorization Bearer token 正确
+- 验证 Vercel 环境变量配置
+
 #### 4.2 调试步骤
 
 1. **检查 Vercel 日志:**
@@ -233,8 +295,9 @@ Error: 插入记录失败: permission denied
    # 先测试统计 API
    curl https://your-app-name.vercel.app/api/stats
    
-   # 再测试 Cron（测试模式）
-   curl -X POST "https://your-app-name.vercel.app/api/cron?test=true"
+   # 再测试 Cron（测试模式，带密钥）
+   curl -X POST "https://your-app-name.vercel.app/api/cron?test=true" \
+     -H "Authorization: Bearer "
    ```
 
 ### 5. 监控和维护
@@ -244,6 +307,7 @@ Error: 插入记录失败: permission denied
 - [ ] 数据库存储使用量
 - [ ] API 调用次数和费用
 - [ ] Vercel Blob 存储使用量
+- [ ] Cron 任务安全日志
 
 #### 5.2 定期维护
 ```bash
@@ -264,8 +328,9 @@ ORDER BY date DESC;
 
 2. **安全考虑:**
    - 确保所有 API 密钥都已正确配置
-   - 使用 CRON_SECRET 保护 Cron 端点
-   - 定期轮换 API 密钥
+   - **必须设置 CRON_SECRET 保护 Cron 端点**
+   - 定期轮换 API 密钥和 CRON_SECRET
+   - 监控未授权的 API 访问尝试
 
 3. **数据管理:**
    - Supabase 数据库表必须先创建
@@ -275,4 +340,21 @@ ORDER BY date DESC;
 4. **性能优化:**
    - Vercel Blob 存储需要有足够的配额
    - 监控数据库查询性能
-   - 考虑添加更多索引以优化查询 
+   - 考虑添加更多索引以优化查询
+
+## 🔐 安全最佳实践
+
+1. **保护 CRON_SECRET:**
+   - 不要在代码中硬编码密钥
+   - 只在 Vercel 环境变量中设置
+   - 定期更换密钥（建议每 3-6 个月）
+
+2. **访问控制:**
+   - 只允许来自 Vercel 的 Cron 请求
+   - 监控异常的 API 调用模式
+   - 设置合理的 API 限流
+
+3. **日志监控:**
+   - 定期检查 Vercel Function Logs
+   - 关注失败的身份验证尝试
+   - 监控异常的数据库活动 
